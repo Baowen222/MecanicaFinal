@@ -1,12 +1,5 @@
 using UnityEngine;
 
-public class GoalZone : MonoBehaviour
+public class GoalZone : ZonaMeta
 {
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            Debug.Log("Prueba completada");
-        }
-    }
 }
