@@ -28,7 +28,7 @@ public class LanzadorBola : MonoBehaviour
         Rigidbody rigidbodyBola = nuevaBola.GetComponent<Rigidbody>();
         if (rigidbodyBola != null)
         {
-            rigidbodyBola.velocity = Vector3.zero;
+            rigidbodyBola.linearVelocity = Vector3.zero;
             rigidbodyBola.angularVelocity = Vector3.zero;
             rigidbodyBola.AddForce(transform.forward * fuerzaLanzamiento, ForceMode.Impulse);
         }

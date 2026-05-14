@@ -18,7 +18,7 @@ public class ParedRompiblePorVelocidad : MonoBehaviour
         }
 
         // Aqui se comprueba la velocidad con rb.velocity.magnitude.
-        if (rb.velocity.magnitude >= velocidadMinimaParaRomper)
+        if (rb.linearVelocity.magnitude >= velocidadMinimaParaRomper)
         {
             gameObject.SetActive(false);
         }
