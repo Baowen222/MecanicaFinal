@@ -5,6 +5,7 @@ public class LanzadorBola : MonoBehaviour
     public GameObject prefabBola;
     public Transform puntoSalida;
     public float fuerzaLanzamiento = 12f;
+    public float tiempoDeVidaBola = 6f;
 
     void Update()
     {
@@ -22,11 +23,16 @@ public class LanzadorBola : MonoBehaviour
         }
 
         GameObject nuevaBola = Instantiate(prefabBola, puntoSalida.position, Quaternion.identity);
-        Rigidbody rigidbodyBola = nuevaBola.GetComponent<Rigidbody>();
+        nuevaBola.SetActive(true);
 
+        Rigidbody rigidbodyBola = nuevaBola.GetComponent<Rigidbody>();
         if (rigidbodyBola != null)
         {
+            rigidbodyBola.velocity = Vector3.zero;
+            rigidbodyBola.angularVelocity = Vector3.zero;
             rigidbodyBola.AddForce(transform.forward * fuerzaLanzamiento, ForceMode.Impulse);
         }
+
+        Destroy(nuevaBola, tiempoDeVidaBola);
     }
 }
