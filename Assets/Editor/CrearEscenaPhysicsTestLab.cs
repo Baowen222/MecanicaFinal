@@ -1,245 +1,296 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class CrearEscenaPhysicsTestLab
 {
-    static readonly string[] nombresGeneradosAnteriores =
-    {
-        "Jugador", "Suelo", "ParedNorte", "ParedSur", "ParedEste", "ParedOeste",
-        "Puerta", "BotonFisico", "Boton_Fisico", "Caja1", "Caja2", "Caja3",
-        "Caja_Fisica_1", "Caja_Fisica_2", "Caja_Fisica_3", "Meta", "Bola_Lanzable",
-        "Punto_Salida_Bola", "Zona_Fuerza", "Pared_Rompible", "Texto_Instrucciones"
-    };
-
     [MenuItem("Tools/Physics Test Lab/Crear Escena Base")]
     public static void CrearEscenaBase()
     {
-        LimpiarEscenaGenerada();
+        GameObject anterior = GameObject.Find("PhysicsTestLab_Escena");
+        if (anterior != null)
+        {
+            Object.DestroyImmediate(anterior);
+        }
 
         GameObject raiz = new GameObject("PhysicsTestLab_Escena");
+        raiz.transform.position = Vector3.zero;
 
-        Material matSuelo = ObtenerOCrearMaterial("Assets/Materials/Mat_Suelo.mat", new Color(0.55f, 0.55f, 0.55f));
-        Material matBola = ObtenerOCrearMaterial("Assets/Materials/Mat_Bola_Azul.mat", Color.blue);
-        Material matCaja = ObtenerOCrearMaterial("Assets/Materials/Mat_Caja_Gris.mat", new Color(0.65f, 0.65f, 0.65f));
-        Material matBoton = ObtenerOCrearMaterial("Assets/Materials/Mat_Boton_Amarillo.mat", Color.yellow);
-        Material matPuerta = ObtenerOCrearMaterial("Assets/Materials/Mat_Puerta_Oscura.mat", new Color(0.2f, 0.2f, 0.2f));
-        Material matMeta = ObtenerOCrearMaterial("Assets/Materials/Mat_Meta_Verde.mat", Color.green);
-        Material matFuerza = ObtenerOCrearMaterial("Assets/Materials/Mat_Zona_Fuerza.mat", new Color(0.35f, 0.8f, 1f, 0.6f));
-        Material matRompible = ObtenerOCrearMaterial("Assets/Materials/Mat_Pared_Rompible.mat", new Color(1f, 0.3f, 0.3f, 0.75f));
+        Material matSuelo = ObtenerOCrearMaterial("Mat_Suelo_Gris", new Color(0.55f, 0.55f, 0.55f));
+        Material matPared = ObtenerOCrearMaterial("Mat_Pared_Oscura", new Color(0.22f, 0.22f, 0.22f));
+        Material matBola = ObtenerOCrearMaterial("Mat_Bola_Azul", new Color(0.2f, 0.45f, 1f));
+        Material matCaja = ObtenerOCrearMaterial("Mat_Caja_Gris", new Color(0.72f, 0.72f, 0.72f));
+        Material matBoton = ObtenerOCrearMaterial("Mat_Boton_Amarillo", new Color(1f, 0.86f, 0.2f));
+        Material matPuerta = ObtenerOCrearMaterial("Mat_Puerta_Oscura", new Color(0.15f, 0.15f, 0.18f));
+        Material matMeta = ObtenerOCrearMaterial("Mat_Meta_Verde", new Color(0.2f, 1f, 0.25f));
+        Material matParedRoja = ObtenerOCrearMaterial("Mat_Pared_Roja", new Color(1f, 0.2f, 0.2f));
+        Material matZona = ObtenerOCrearMaterial("Mat_Zona_Fuerza_Azul", new Color(0.3f, 0.7f, 1f, 0.65f));
+        Material matRampa = ObtenerOCrearMaterial("Mat_Rampa_Gris", new Color(0.63f, 0.63f, 0.63f));
 
-        GameObject suelo = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        suelo.name = "Suelo";
-        suelo.transform.position = Vector3.zero;
-        suelo.transform.localScale = new Vector3(2f, 1f, 2f);
-        suelo.GetComponent<Renderer>().sharedMaterial = matSuelo;
-        suelo.transform.SetParent(raiz.transform);
+        GameObject controlGO = new GameObject("Control_Victoria");
+        controlGO.transform.SetParent(raiz.transform);
+        ControlVictoria control = controlGO.AddComponent<ControlVictoria>();
 
-        CrearPared("ParedNorte", new Vector3(0f, 2f, 20f), new Vector3(40f, 4f, 1f), matCaja, raiz.transform);
-        CrearPared("ParedSur", new Vector3(0f, 2f, -20f), new Vector3(40f, 4f, 1f), matCaja, raiz.transform);
-        CrearPared("ParedEste", new Vector3(20f, 2f, 0f), new Vector3(1f, 4f, 40f), matCaja, raiz.transform);
-        CrearPared("ParedOeste", new Vector3(-20f, 2f, 0f), new Vector3(1f, 4f, 40f), matCaja, raiz.transform);
-
-        GameObject jugador = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        jugador.name = "Jugador";
-        jugador.tag = "Player";
-        jugador.transform.position = new Vector3(0f, 1f, -14f);
-        jugador.transform.localScale = Vector3.one;
-        jugador.AddComponent<MovimientoJugadorSimple>();
-        Rigidbody rbJugador = jugador.AddComponent<Rigidbody>();
-        rbJugador.constraints = RigidbodyConstraints.FreezeRotation;
-        jugador.transform.SetParent(raiz.transform);
-
-        GameObject puntoSalida = new GameObject("Punto_Salida_Bola");
-        puntoSalida.transform.SetParent(jugador.transform);
-        puntoSalida.transform.localPosition = new Vector3(0f, 1f, 1.2f);
-
-        GameObject bolaPrefab = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        bolaPrefab.name = "Bola_Lanzable";
-        bolaPrefab.tag = "Bola";
-        bolaPrefab.transform.position = new Vector3(0f, 2f, -12f);
-        bolaPrefab.GetComponent<Renderer>().sharedMaterial = matBola;
-        Rigidbody rbBola = bolaPrefab.AddComponent<Rigidbody>();
-        rbBola.mass = 1f;
-        bolaPrefab.SetActive(false);
-        bolaPrefab.transform.SetParent(raiz.transform);
-
-        LanzadorBola lanzador = jugador.AddComponent<LanzadorBola>();
-        lanzador.prefabBola = bolaPrefab;
-        lanzador.puntoSalida = puntoSalida.transform;
-
-        for (int i = 0; i < 3; i++)
-        {
-            GameObject caja = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            caja.name = "Caja" + (i + 1);
-            caja.tag = "Caja";
-            caja.transform.position = new Vector3(-2f + (i * 2f), 0.8f, -2f);
-            caja.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
-            caja.GetComponent<Renderer>().sharedMaterial = matCaja;
-            caja.AddComponent<Rigidbody>();
-            caja.transform.SetParent(raiz.transform);
-        }
-
-        GameObject boton = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        boton.name = "BotonFisico";
-        boton.transform.position = new Vector3(0f, 0.2f, 6f);
-        boton.transform.localScale = new Vector3(2f, 0.3f, 2f);
-        boton.GetComponent<Renderer>().sharedMaterial = matBoton;
-        BoxCollider colBoton = boton.GetComponent<BoxCollider>();
-        colBoton.isTrigger = true;
-        boton.transform.SetParent(raiz.transform);
-
-        GameObject puerta = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        puerta.name = "Puerta";
-        puerta.transform.position = new Vector3(0f, 2f, 9f);
-        puerta.transform.localScale = new Vector3(3f, 4f, 1f);
-        puerta.GetComponent<Renderer>().sharedMaterial = matPuerta;
-        puerta.transform.SetParent(raiz.transform);
-        AbridorPuerta abridorPuerta = puerta.AddComponent<AbridorPuerta>();
-
-        BotonFisico botonFisico = boton.AddComponent<BotonFisico>();
-        botonFisico.puerta = abridorPuerta;
-
-        GameObject meta = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        meta.name = "Meta";
-        meta.transform.position = new Vector3(0f, 0.5f, 14f);
-        meta.transform.localScale = new Vector3(4f, 1f, 2f);
-        meta.GetComponent<Renderer>().sharedMaterial = matMeta;
-        BoxCollider colMeta = meta.GetComponent<BoxCollider>();
-        colMeta.isTrigger = true;
-        meta.AddComponent<ZonaMeta>();
-        meta.transform.SetParent(raiz.transform);
-
-        GameObject zonaFuerza = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        zonaFuerza.name = "Zona_Fuerza";
-        zonaFuerza.transform.position = new Vector3(-8f, 1f, -1f);
-        zonaFuerza.transform.localScale = new Vector3(4f, 2f, 4f);
-        zonaFuerza.GetComponent<Renderer>().sharedMaterial = matFuerza;
-        zonaFuerza.GetComponent<BoxCollider>().isTrigger = true;
-        zonaFuerza.AddComponent<ZonaFuerza>();
-        zonaFuerza.transform.SetParent(raiz.transform);
-
-        GameObject paredRompible = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        paredRompible.name = "Pared_Rompible";
-        paredRompible.transform.position = new Vector3(8f, 1.5f, 4f);
-        paredRompible.transform.localScale = new Vector3(3f, 3f, 0.7f);
-        paredRompible.GetComponent<Renderer>().sharedMaterial = matRompible;
-        paredRompible.AddComponent<ParedRompiblePorVelocidad>();
-        paredRompible.transform.SetParent(raiz.transform);
-
-        Camera camara = Camera.main;
-        if (camara == null)
-        {
-            GameObject objetoCamara = new GameObject("Main Camera");
-            camara = objetoCamara.AddComponent<Camera>();
-            objetoCamara.tag = "MainCamera";
-        }
-        camara.transform.position = jugador.transform.position + new Vector3(0f, 7f, -10f);
-        camara.transform.rotation = Quaternion.Euler(20f, 0f, 0f);
-        camara.transform.SetParent(raiz.transform);
-
-        CamaraSeguimientoSimple camaraSeguimiento = camara.GetComponent<CamaraSeguimientoSimple>();
-        if (camaraSeguimiento == null)
-        {
-            camaraSeguimiento = camara.gameObject.AddComponent<CamaraSeguimientoSimple>();
-        }
-        camaraSeguimiento.objetivo = jugador.transform;
-
-        Light luzDireccional = Object.FindObjectOfType<Light>();
-        if (luzDireccional == null || luzDireccional.type != LightType.Directional)
-        {
-            GameObject objetoLuz = new GameObject("Directional Light");
-            luzDireccional = objetoLuz.AddComponent<Light>();
-            luzDireccional.type = LightType.Directional;
-        }
-        luzDireccional.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
-        luzDireccional.transform.SetParent(raiz.transform);
-
+        CrearEscenario(raiz.transform, matSuelo, matPared, matZona, matRampa, matParedRoja, matCaja, matBoton, matPuerta, matMeta, matBola, control);
+        CrearJugador(raiz.transform, matBola);
+        CrearCanvasVictoria(raiz.transform, control);
         CrearTextosAyuda(raiz.transform);
 
         Selection.activeGameObject = raiz;
         Debug.Log("Escena base de Physics Test Lab creada correctamente.");
     }
 
-    static void LimpiarEscenaGenerada()
+    static void CrearEscenario(Transform raiz, Material matSuelo, Material matPared, Material matZona, Material matRampa, Material matParedRoja, Material matCaja, Material matBoton, Material matPuerta, Material matMeta, Material matBola, ControlVictoria control)
     {
-        GameObject raizAnterior = GameObject.Find("PhysicsTestLab_Escena");
-        if (raizAnterior != null)
-        {
-            Object.DestroyImmediate(raizAnterior);
-        }
+        GameObject suelo = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        suelo.name = "Suelo_Laboratorio";
+        suelo.transform.position = new Vector3(0f, -0.5f, 35f);
+        suelo.transform.localScale = new Vector3(14f, 1f, 90f);
+        suelo.GetComponent<Renderer>().sharedMaterial = matSuelo;
+        suelo.transform.SetParent(raiz);
 
-        for (int i = 0; i < nombresGeneradosAnteriores.Length; i++)
-        {
-            GameObject suelto = GameObject.Find(nombresGeneradosAnteriores[i]);
-            if (suelto != null)
-            {
-                Object.DestroyImmediate(suelto);
-            }
-        }
+        CrearCubo("Pared_Izquierda_1", new Vector3(-7f, 2f, 35f), new Vector3(1f, 4f, 90f), matPared, raiz);
+        CrearCubo("Pared_Derecha_1", new Vector3(7f, 2f, 35f), new Vector3(1f, 4f, 90f), matPared, raiz);
+        CrearCubo("Pared_Fondo", new Vector3(0f, 2f, -10f), new Vector3(14f, 4f, 1f), matPared, raiz);
+
+        GameObject zonaLanzamiento = CrearCubo("Zona_Lanzamiento", new Vector3(0f, 0.03f, 8f), new Vector3(8f, 0.05f, 6f), matZona, raiz);
+        zonaLanzamiento.GetComponent<Collider>().isTrigger = true;
+
+        GameObject zonaFuerza = CrearCubo("Zona_Fuerza", new Vector3(0f, 1f, 18f), new Vector3(6f, 2f, 8f), matZona, raiz);
+        zonaFuerza.GetComponent<BoxCollider>().isTrigger = true;
+        ZonaFuerza zf = zonaFuerza.AddComponent<ZonaFuerza>();
+        zf.direccionFuerza = new Vector3(0f, 0f, 40f);
+
+        GameObject rampa = CrearCubo("Rampa_Fisica", new Vector3(0f, 1.1f, 25f), new Vector3(4f, 0.7f, 7f), matRampa, raiz);
+        rampa.transform.rotation = Quaternion.Euler(25f, 0f, 0f);
+
+        GameObject pared = CrearCubo("Pared_Rompible", new Vector3(0f, 2f, 32f), new Vector3(6f, 4f, 1f), matParedRoja, raiz);
+        ParedRompiblePorVelocidad rompible = pared.AddComponent<ParedRompiblePorVelocidad>();
+        rompible.controlVictoria = control;
+
+        // Estas cajas son objetos físicos interactivos
+        CrearCajaFisica("Caja_Fisica_1", new Vector3(-2f, 0.8f, 40f), matCaja, raiz);
+        CrearCajaFisica("Caja_Fisica_2", new Vector3(2f, 0.8f, 43f), matCaja, raiz);
+        CrearCajaFisica("Caja_Fisica_3", new Vector3(-1f, 0.8f, 46f), matCaja, raiz);
+        CrearCajaFisica("Caja_Fisica_4", new Vector3(1f, 0.8f, 49f), matCaja, raiz);
+
+        GameObject boton = CrearCubo("Boton_Fisico", new Vector3(0f, 0.2f, 53f), new Vector3(3f, 0.4f, 3f), matBoton, raiz);
+        boton.GetComponent<BoxCollider>().isTrigger = true;
+
+        GameObject puerta = CrearCubo("Puerta_Principal", new Vector3(0f, 2.5f, 58f), new Vector3(6f, 5f, 1f), matPuerta, raiz);
+        AbridorPuerta abridor = puerta.AddComponent<AbridorPuerta>();
+        abridor.controlVictoria = control;
+
+        BotonFisico botonScript = boton.AddComponent<BotonFisico>();
+        botonScript.puerta = abridor;
+        botonScript.controlVictoria = control;
+        botonScript.renderBoton = boton.GetComponent<Renderer>();
+
+        CrearCuboMovil("Obstaculo_1", new Vector3(-1.5f, 0.8f, 68f), new Vector3(2f, 1.6f, 2f), matCaja, raiz);
+        CrearCuboMovil("Obstaculo_2", new Vector3(1.8f, 0.8f, 74f), new Vector3(1.8f, 1.8f, 1.8f), matCaja, raiz);
+        CrearEsferaMovil("Obstaculo_3", new Vector3(0f, 1f, 80f), 1.6f, matBola, raiz);
+
+        GameObject meta = CrearCubo("Meta_Final", new Vector3(0f, 0.6f, 86f), new Vector3(6f, 1.2f, 3f), matMeta, raiz);
+        meta.GetComponent<BoxCollider>().isTrigger = true;
+        ZonaMeta zonaMeta = meta.AddComponent<ZonaMeta>();
+        zonaMeta.controlVictoria = control;
     }
 
+    static void CrearJugador(Transform raiz, Material matBola)
+    {
+        GameObject jugador = GameObject.Find("Jugador");
+        if (jugador == null)
+        {
+            jugador = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            jugador.name = "Jugador";
+        }
+
+        jugador.tag = "Player";
+        jugador.transform.position = new Vector3(0f, 1f, 2f);
+        jugador.transform.localScale = Vector3.one;
+        jugador.transform.SetParent(raiz);
+
+        if (jugador.GetComponent<Rigidbody>() == null)
+        {
+            Rigidbody rb = jugador.AddComponent<Rigidbody>();
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
+        }
+
+        if (jugador.GetComponent<MovimientoJugadorSimple>() == null)
+        {
+            jugador.AddComponent<MovimientoJugadorSimple>();
+        }
+
+        Transform punto = jugador.transform.Find("Punto_Salida_Bola");
+        if (punto == null)
+        {
+            GameObject puntoGO = new GameObject("Punto_Salida_Bola");
+            puntoGO.transform.SetParent(jugador.transform);
+            punto = puntoGO.transform;
+        }
+        punto.localPosition = new Vector3(0f, 1.1f, 1.2f);
+
+        GameObject prefabBola = GameObject.Find("Bola_Lanzable");
+        if (prefabBola == null)
+        {
+            prefabBola = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            prefabBola.name = "Bola_Lanzable";
+        }
+        prefabBola.transform.SetParent(raiz);
+        prefabBola.transform.position = new Vector3(0f, 1f, 6f);
+        prefabBola.GetComponent<Renderer>().sharedMaterial = matBola;
+        prefabBola.tag = "Bola";
+        if (prefabBola.GetComponent<Rigidbody>() == null)
+        {
+            prefabBola.AddComponent<Rigidbody>();
+        }
+        prefabBola.SetActive(false);
+
+        LanzadorBola lanzador = jugador.GetComponent<LanzadorBola>();
+        if (lanzador == null)
+        {
+            lanzador = jugador.AddComponent<LanzadorBola>();
+        }
+        lanzador.prefabBola = prefabBola;
+        lanzador.puntoSalida = punto;
+
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            GameObject camGO = new GameObject("Main Camera");
+            camGO.tag = "MainCamera";
+            cam = camGO.AddComponent<Camera>();
+        }
+        cam.transform.SetParent(raiz);
+        CamaraSeguimientoSimple seguimiento = cam.GetComponent<CamaraSeguimientoSimple>();
+        if (seguimiento == null)
+        {
+            seguimiento = cam.gameObject.AddComponent<CamaraSeguimientoSimple>();
+        }
+        seguimiento.objetivo = jugador.transform;
+        seguimiento.desplazamiento = new Vector3(0f, 9f, -11f);
+    }
+
+    static void CrearCanvasVictoria(Transform raiz, ControlVictoria control)
+    {
+        GameObject canvasGO = new GameObject("Canvas_Victoria");
+        canvasGO.transform.SetParent(raiz);
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvasGO.AddComponent<CanvasScaler>();
+        canvasGO.AddComponent<GraphicRaycaster>();
+
+        GameObject panel = new GameObject("Panel_Victoria");
+        panel.transform.SetParent(canvasGO.transform, false);
+        Image img = panel.AddComponent<Image>();
+        img.color = new Color(0f, 0f, 0f, 0.65f);
+        RectTransform rtPanel = panel.GetComponent<RectTransform>();
+        rtPanel.anchorMin = Vector2.zero; rtPanel.anchorMax = Vector2.one; rtPanel.offsetMin = Vector2.zero; rtPanel.offsetMax = Vector2.zero;
+
+        CrearTextoUI(panel.transform, "Texto_Ganaste", "HAS GANADO", 56, new Vector2(0f, 60f));
+        CrearTextoUI(panel.transform, "Texto_Detalle", "Has completado todas las pruebas de física", 30, new Vector2(0f, -10f));
+
+        GameObject avisoGO = CrearTextoUI(canvasGO.transform, "Texto_Aviso", "", 26, new Vector2(0f, -220f));
+        control.panelVictoria = panel;
+        control.textoAviso = avisoGO.GetComponent<Text>();
+    }
+
+    static GameObject CrearTextoUI(Transform padre, string nombre, string contenido, int tam, Vector2 pos)
+    {
+        GameObject go = new GameObject(nombre);
+        go.transform.SetParent(padre, false);
+        Text txt = go.AddComponent<Text>();
+        txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        txt.text = contenido;
+        txt.alignment = TextAnchor.MiddleCenter;
+        txt.fontSize = tam;
+        txt.color = Color.white;
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(1200f, 120f);
+        rt.anchoredPosition = pos;
+        return go;
+    }
 
     static void CrearTextosAyuda(Transform padre)
     {
-        GameObject contenedor = new GameObject("Texto_Instrucciones");
-        contenedor.transform.SetParent(padre);
-
-        CrearTextoAyuda("Pulsa E para lanzar la bola", new Vector3(-12f, 2.5f, -13f), contenedor.transform);
-        CrearTextoAyuda("Empuja una caja al botón amarillo", new Vector3(-8f, 2.5f, 3f), contenedor.transform);
-        CrearTextoAyuda("La zona azul aplica fuerza", new Vector3(-12f, 3.2f, -1f), contenedor.transform);
-        CrearTextoAyuda("Rompe la pared roja con velocidad", new Vector3(6f, 3.2f, 2f), contenedor.transform);
-        CrearTextoAyuda("Llega a la meta verde", new Vector3(-3f, 2.5f, 13f), contenedor.transform);
+        CrearTextoMundo("1. Lanza la bola con E", new Vector3(0f, 2.6f, 7f), padre);
+        CrearTextoMundo("2. Usa la zona azul para ganar velocidad", new Vector3(0f, 2.6f, 18f), padre);
+        CrearTextoMundo("3. Rompe la pared roja con la bola", new Vector3(0f, 3.4f, 31f), padre);
+        CrearTextoMundo("4. Empuja una caja al botón amarillo", new Vector3(0f, 2.6f, 51f), padre);
+        CrearTextoMundo("5. Cruza la puerta", new Vector3(0f, 3f, 58f), padre);
+        CrearTextoMundo("6. Llega a la meta verde", new Vector3(0f, 2.8f, 85f), padre);
     }
 
-    static void CrearTextoAyuda(string mensaje, Vector3 posicion, Transform padre)
+    static void CrearTextoMundo(string mensaje, Vector3 pos, Transform padre)
     {
-        GameObject texto = new GameObject("Texto_" + mensaje.Replace(" ", "_"));
-        texto.transform.position = posicion;
-        texto.transform.SetParent(padre);
-
-        TextMesh texto3D = texto.AddComponent<TextMesh>();
-        texto3D.text = mensaje;
-        texto3D.fontSize = 48;
-        texto3D.characterSize = 0.12f;
-        texto3D.anchor = TextAnchor.MiddleCenter;
-        texto3D.color = Color.white;
-
-        texto.transform.rotation = Quaternion.Euler(20f, 0f, 0f);
+        GameObject go = new GameObject("Texto_" + mensaje.Replace(" ", "_"));
+        go.transform.SetParent(padre);
+        go.transform.position = pos;
+        TextMesh tm = go.AddComponent<TextMesh>();
+        tm.text = mensaje;
+        tm.fontSize = 42;
+        tm.characterSize = 0.12f;
+        tm.anchor = TextAnchor.MiddleCenter;
+        tm.color = Color.white;
     }
 
-    static void CrearPared(string nombre, Vector3 posicion, Vector3 escala, Material material, Transform padre)
+    static GameObject CrearCajaFisica(string nombre, Vector3 pos, Material mat, Transform padre)
     {
-        GameObject pared = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        pared.name = nombre;
-        pared.transform.position = posicion;
-        pared.transform.localScale = escala;
-        pared.GetComponent<Renderer>().sharedMaterial = material;
-        pared.transform.SetParent(padre);
+        GameObject caja = CrearCubo(nombre, pos, new Vector3(1.4f, 1.4f, 1.4f), mat, padre);
+        caja.tag = "Caja";
+        caja.AddComponent<Rigidbody>(); // Requisito: objetos físicos interactivos con Rigidbody
+        return caja;
     }
 
-    static Material ObtenerOCrearMaterial(string rutaMaterial, Color color)
+    static GameObject CrearCuboMovil(string nombre, Vector3 pos, Vector3 escala, Material mat, Transform padre)
     {
-        Material material = AssetDatabase.LoadAssetAtPath<Material>(rutaMaterial);
-        if (material != null)
-        {
-            return material;
-        }
+        GameObject c = CrearCubo(nombre, pos, escala, mat, padre);
+        c.AddComponent<Rigidbody>();
+        return c;
+    }
 
+    static GameObject CrearEsferaMovil(string nombre, Vector3 pos, float escala, Material mat, Transform padre)
+    {
+        GameObject esfera = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        esfera.name = nombre;
+        esfera.transform.SetParent(padre);
+        esfera.transform.position = pos;
+        esfera.transform.localScale = Vector3.one * escala;
+        esfera.GetComponent<Renderer>().sharedMaterial = mat;
+        esfera.AddComponent<Rigidbody>();
+        return esfera;
+    }
+
+    static GameObject CrearCubo(string nombre, Vector3 pos, Vector3 escala, Material mat, Transform padre)
+    {
+        GameObject c = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        c.name = nombre;
+        c.transform.SetParent(padre);
+        c.transform.position = pos;
+        c.transform.localScale = escala;
+        c.GetComponent<Renderer>().sharedMaterial = mat;
+        return c;
+    }
+
+    static Material ObtenerOCrearMaterial(string nombre, Color color)
+    {
         if (!AssetDatabase.IsValidFolder("Assets/Materials"))
         {
             AssetDatabase.CreateFolder("Assets", "Materials");
         }
 
-        Shader shader = Shader.Find("Universal Render Pipeline/Lit");
-        if (shader == null)
+        string ruta = "Assets/Materials/" + nombre + ".mat";
+        Material mat = AssetDatabase.LoadAssetAtPath<Material>(ruta);
+        if (mat == null)
         {
-            shader = Shader.Find("Standard");
+            Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null) shader = Shader.Find("Standard");
+            mat = new Material(shader);
+            AssetDatabase.CreateAsset(mat, ruta);
         }
-
-        material = new Material(shader);
-        material.color = color;
-        AssetDatabase.CreateAsset(material, rutaMaterial);
+        mat.color = color;
+        EditorUtility.SetDirty(mat);
         AssetDatabase.SaveAssets();
-        return material;
+        return mat;
     }
 }

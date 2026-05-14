@@ -9,7 +9,7 @@ public class LanzadorBola : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0))
         {
             LanzarBola();
         }
@@ -25,14 +25,21 @@ public class LanzadorBola : MonoBehaviour
         GameObject nuevaBola = Instantiate(prefabBola, puntoSalida.position, Quaternion.identity);
         nuevaBola.SetActive(true);
 
-        Rigidbody rigidbodyBola = nuevaBola.GetComponent<Rigidbody>();
-        if (rigidbodyBola != null)
+        Rigidbody rbBola = nuevaBola.GetComponent<Rigidbody>();
+        if (rbBola != null)
         {
-            rigidbodyBola.linearVelocity = Vector3.zero;
-            rigidbodyBola.angularVelocity = Vector3.zero;
-            rigidbodyBola.AddForce(transform.forward * fuerzaLanzamiento, ForceMode.Impulse);
+            rbBola.linearVelocity = Vector3.zero;
+            rbBola.angularVelocity = Vector3.zero;
+            // Requisito: impulso con ForceMode.Impulse
+            // Aquí usamos impulso para lanzar la bola
+            rbBola.AddForce(transform.forward * fuerzaLanzamiento, ForceMode.Impulse);
         }
 
-        Destroy(nuevaBola, tiempoDeVidaBola);
+        BolaTemporal bolaTemporal = nuevaBola.GetComponent<BolaTemporal>();
+        if (bolaTemporal == null)
+        {
+            bolaTemporal = nuevaBola.AddComponent<BolaTemporal>();
+        }
+        bolaTemporal.tiempoDeVida = tiempoDeVidaBola;
     }
 }
