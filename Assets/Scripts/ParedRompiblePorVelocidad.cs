@@ -18,8 +18,8 @@ public class ParedRompiblePorVelocidad : MonoBehaviour
             return;
         }
 
-        // Requisito: comprobamos la velocidad del Rigidbody
-        // Aquí comprobamos la velocidad de la bola
+        //  comprobamos la velocidad del Rigidbody
+        // comprobamos la velocidad de la bola
         if (rb.linearVelocity.magnitude >= velocidadMinimaParaRomper)
         {
             if (controlVictoria != null)

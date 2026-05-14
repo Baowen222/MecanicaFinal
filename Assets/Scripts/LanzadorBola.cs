@@ -30,8 +30,8 @@ public class LanzadorBola : MonoBehaviour
         {
             rbBola.linearVelocity = Vector3.zero;
             rbBola.angularVelocity = Vector3.zero;
-            // Requisito: impulso con ForceMode.Impulse
-            // Aquí usamos impulso para lanzar la bola
+            //impulso con ForceMode.Impulse
+          
             rbBola.AddForce(transform.forward * fuerzaLanzamiento, ForceMode.Impulse);
         }
 
