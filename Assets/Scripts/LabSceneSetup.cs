@@ -17,7 +17,7 @@ public class LabSceneSetup : MonoBehaviour
         jugador.name = "Jugador";
         jugador.tag = "Player";
         jugador.transform.position = new Vector3(0f, 1f, -8f);
-        jugador.AddComponent<SimplePlayerController>();
+        jugador.AddComponent<MovimientoJugadorSimple>();
 
         GameObject camara = Camera.main.gameObject;
         camara.transform.SetParent(jugador.transform);
@@ -40,9 +40,9 @@ public class LabSceneSetup : MonoBehaviour
         matBola.color = Color.blue;
         bolaPrefab.GetComponent<Renderer>().material = matBola;
 
-        BallLauncher launcher = jugador.AddComponent<BallLauncher>();
-        launcher.bolaPrefab = bolaPrefab;
-        launcher.puntoSalida = puntoSalida.transform;
+        LanzadorBola lanzador = jugador.AddComponent<LanzadorBola>();
+        lanzador.prefabBola = bolaPrefab;
+        lanzador.puntoSalida = puntoSalida.transform;
     }
 
     void CrearSala()
@@ -80,7 +80,7 @@ public class LabSceneSetup : MonoBehaviour
         grisOscuro.color = new Color(0.25f, 0.25f, 0.25f);
         puerta.GetComponent<Renderer>().material = grisOscuro;
 
-        DoorOpener doorOpener = puerta.AddComponent<DoorOpener>();
+        AbridorPuerta abridorPuerta = puerta.AddComponent<AbridorPuerta>();
 
         GameObject boton = GameObject.CreatePrimitive(PrimitiveType.Cube);
         boton.name = "BotonFisico";
@@ -94,8 +94,8 @@ public class LabSceneSetup : MonoBehaviour
         BoxCollider col = boton.GetComponent<BoxCollider>();
         col.isTrigger = true;
 
-        PhysicsButton button = boton.AddComponent<PhysicsButton>();
-        button.puerta = doorOpener;
+        BotonFisico botonFisico = boton.AddComponent<BotonFisico>();
+        botonFisico.puerta = abridorPuerta;
     }
 
     void CrearCajas()
@@ -128,6 +128,6 @@ public class LabSceneSetup : MonoBehaviour
 
         BoxCollider col = meta.GetComponent<BoxCollider>();
         col.isTrigger = true;
-        meta.AddComponent<GoalZone>();
+        meta.AddComponent<ZonaMeta>();
     }
 }
