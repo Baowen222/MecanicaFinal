@@ -14,7 +14,7 @@ public class BotonFisico : MonoBehaviour
             return;
         }
 
-        if (otro.CompareTag("Caja") || otro.CompareTag("Bola"))
+        if (otro.CompareTag("Caja") )
         {
             yaActivado = true;
             transform.position += new Vector3(0f, -0.08f, 0f);
