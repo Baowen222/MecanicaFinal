@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ParedRompiblePorVelocidad : MonoBehaviour
 {
-    public float velocidadMinimaParaRomper = 9f;
+    public float velocidadMinimaParaRomper = 6f;
 
     void OnCollisionEnter(Collision colision)
     {
@@ -18,7 +18,7 @@ public class ParedRompiblePorVelocidad : MonoBehaviour
         }
 
         // Aqui se comprueba la velocidad con rb.velocity.magnitude.
-        if (rb.linearVelocity.magnitude >= velocidadMinimaParaRomper)
+        if (rb.velocity.magnitude >= velocidadMinimaParaRomper)
         {
             gameObject.SetActive(false);
         }

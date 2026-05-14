@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ZonaFuerza : MonoBehaviour
 {
-    public Vector3 direccionFuerza = new Vector3(0f, 0f, 12f);
+    public Vector3 direccionFuerza = new Vector3(0f, 0f, 20f);
 
     void OnTriggerStay(Collider otro)
     {

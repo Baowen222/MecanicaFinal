@@ -8,7 +8,7 @@ public static class CrearEscenaPhysicsTestLab
         "Jugador", "Suelo", "ParedNorte", "ParedSur", "ParedEste", "ParedOeste",
         "Puerta", "BotonFisico", "Boton_Fisico", "Caja1", "Caja2", "Caja3",
         "Caja_Fisica_1", "Caja_Fisica_2", "Caja_Fisica_3", "Meta", "Bola_Lanzable",
-        "Punto_Salida_Bola", "Zona_Fuerza", "Pared_Rompible"
+        "Punto_Salida_Bola", "Zona_Fuerza", "Pared_Rompible", "Texto_Instrucciones"
     };
 
     [MenuItem("Tools/Physics Test Lab/Crear Escena Base")]
@@ -133,8 +133,16 @@ public static class CrearEscenaPhysicsTestLab
             camara = objetoCamara.AddComponent<Camera>();
             objetoCamara.tag = "MainCamera";
         }
-        camara.transform.position = new Vector3(0f, 12f, -22f);
+        camara.transform.position = jugador.transform.position + new Vector3(0f, 7f, -10f);
         camara.transform.rotation = Quaternion.Euler(20f, 0f, 0f);
+        camara.transform.SetParent(raiz.transform);
+
+        CamaraSeguimientoSimple camaraSeguimiento = camara.GetComponent<CamaraSeguimientoSimple>();
+        if (camaraSeguimiento == null)
+        {
+            camaraSeguimiento = camara.gameObject.AddComponent<CamaraSeguimientoSimple>();
+        }
+        camaraSeguimiento.objetivo = jugador.transform;
 
         Light luzDireccional = Object.FindObjectOfType<Light>();
         if (luzDireccional == null || luzDireccional.type != LightType.Directional)
@@ -144,6 +152,9 @@ public static class CrearEscenaPhysicsTestLab
             luzDireccional.type = LightType.Directional;
         }
         luzDireccional.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
+        luzDireccional.transform.SetParent(raiz.transform);
+
+        CrearTextosAyuda(raiz.transform);
 
         Selection.activeGameObject = raiz;
         Debug.Log("Escena base de Physics Test Lab creada correctamente.");
@@ -165,6 +176,35 @@ public static class CrearEscenaPhysicsTestLab
                 Object.DestroyImmediate(suelto);
             }
         }
+    }
+
+
+    static void CrearTextosAyuda(Transform padre)
+    {
+        GameObject contenedor = new GameObject("Texto_Instrucciones");
+        contenedor.transform.SetParent(padre);
+
+        CrearTextoAyuda("Pulsa E para lanzar la bola", new Vector3(-12f, 2.5f, -13f), contenedor.transform);
+        CrearTextoAyuda("Empuja una caja al botón amarillo", new Vector3(-8f, 2.5f, 3f), contenedor.transform);
+        CrearTextoAyuda("La zona azul aplica fuerza", new Vector3(-12f, 3.2f, -1f), contenedor.transform);
+        CrearTextoAyuda("Rompe la pared roja con velocidad", new Vector3(6f, 3.2f, 2f), contenedor.transform);
+        CrearTextoAyuda("Llega a la meta verde", new Vector3(-3f, 2.5f, 13f), contenedor.transform);
+    }
+
+    static void CrearTextoAyuda(string mensaje, Vector3 posicion, Transform padre)
+    {
+        GameObject texto = new GameObject("Texto_" + mensaje.Replace(" ", "_"));
+        texto.transform.position = posicion;
+        texto.transform.SetParent(padre);
+
+        TextMesh texto3D = texto.AddComponent<TextMesh>();
+        texto3D.text = mensaje;
+        texto3D.fontSize = 48;
+        texto3D.characterSize = 0.12f;
+        texto3D.anchor = TextAnchor.MiddleCenter;
+        texto3D.color = Color.white;
+
+        texto.transform.rotation = Quaternion.Euler(20f, 0f, 0f);
     }
 
     static void CrearPared(string nombre, Vector3 posicion, Vector3 escala, Material material, Transform padre)

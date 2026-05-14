@@ -3,7 +3,7 @@ using UnityEngine;
 public class AbridorPuerta : MonoBehaviour
 {
     public bool puertaAbierta = false;
-    public float alturaAbierta = 4f;
+    public float alturaAbierta = 7f;
     public float velocidadApertura = 2f;
 
     private Vector3 posicionCerrada;
